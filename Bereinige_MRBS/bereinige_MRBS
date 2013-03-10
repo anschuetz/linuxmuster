@@ -1,0 +1,15 @@
+#!/bin/bash
+# bereinige_MRBS  März2013, jesko.anschuetz@linuxmuster.net
+
+# Dieses Skript sucht sich aus der MRBS-Config die Datenbank-Daten und löscht anschließend
+# aus allen Einträgen das Prefix [administrator], welches entsteht, wenn man als Administrator
+# Einträge bucht.
+
+MRBS_CONFIGFILE=/etc/mrbs/config.inc.php
+
+DATABASE=$(grep -e"db_database" $MRBS_CONFIGFILE | awk -F\" '{print $2}')
+DB_USER=$(grep -e"db_login" $MRBS_CONFIGFILE | awk -F\" '{print $2}')
+DB_PASS=$(grep -e"db_password" $MRBS_CONFIGFILE | awk -F\" '{print $2}')
+
+echo "UPDATE mrbs_entry SET name = replace(name, '[administrator] ','')" | mysql -D $DATABASE -u $DB_USER --password=$DB_PASS
+
