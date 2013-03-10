@@ -1,0 +1,6 @@
+# Des Nächtens die Workstations-Datei auswerten und die MAC-Adressen
+# in die Datei /etc/ethers schreiben, damit wakeonlan mit der IP-Adr. 
+# aufgerufen werden kann.
+
+0 0 * * *    root /usr/bin/ethers_schreiben_fuer_wakeonlan
+          

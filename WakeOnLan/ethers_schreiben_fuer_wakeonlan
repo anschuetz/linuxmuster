@@ -1,0 +1,17 @@
+#!/bin/bash
+# Januar 2010 - jesko.anschuetz@linuxmuster.net
+# Stichworte, die Verhindern, dass die Mac-Adressen in /etc/ethers geschrieben
+# werden, können durch Pipes getrennt zwischen die Klammern gesetzt werden.
+# Beispiel: Kommentare und Hardware, in deren workstations-Eintrag eines der 
+# Worte none,switch,drucker,serverraum,test,verw,mobil oder esxi vorkommt, 
+# werden ausgeschlossen:
+# EXCLUDE="(^#|none|switch|drucker|serverraum|test|verw|mobil|esxi)"
+
+# Default: nur Kommentarzeilen werden ausgeschlossen...
+
+# Die Datei /etc/ethers wird geschrieben und hat für jeden Workstations-Eintrag
+# eine eigene Zeile im Format:
+# MAC-Adresse IP-Adresse
+
+EXCLUDE="(^#)"
+egrep -v -e"$EXCLUDE" /etc/linuxmuster/workstations | awk -F\; '{print $4,$5}' > /etc/ethers
