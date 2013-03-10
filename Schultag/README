@@ -1,0 +1,33 @@
+Huhu :)
+
+nachdem ich das schon öfters gebraucht hätte, hat jetzt der Anstoß durch die Liste gereicht. 
+Jetzt ist es da.
+
+Alle Dateien werden in einen beliebigen Ordner kopiert,
+ 
+Dann installiert man das Ganze mit 
+# make install
+
+Für Experten können im Kopf des Skriptes (liegt dann unter /usr/bin/ist_heute_schultag
+folgende Einstellungen vorgenommen werden:
+- Wo liegen die Config-Dateien? -> config_pfad
+- Wie heißt die Datei mit den Ferien?
+- Wie heißt die Datei mit den Feiertagen?
+- Wie heißt die Datei mit den Ausnahmetagen?
+- Welche Wochentage sind grundsätzlich frei?
+- In welchem Format will man das Datum angeben?
+- Die Spezialisten möchten eventuell noch den Exit-Code für verschiedene Ereignisse anpassen.
+
+So. 
+Jetzt kann man in Cronjobs das Skript vorschalten.
+
+Beispiel: 
+
+echo "Hallo"    gibt auf der Console das Wort Hallo aus.
+
+ist_heute_schultag && echo "Hallo"     gibt nur an Schultagen das Wort Hallo aus.
+ist_heute_schultag || echo "Hallo"     gibt nur an schulfreien Tgen das Wort Hallo aus.
+ist_heute_schultag && echo "heute ist Schule" || echo "heute ist keine Schule"     gibt je nach dem den richtigen Satz aus.
+
+viel Spaß mit dem Skript :)
+viele Grüße, Jesko
