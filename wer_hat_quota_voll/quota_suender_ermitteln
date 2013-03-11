@@ -1,0 +1,3 @@
+# morgens vor Unterrichtsbeginn die Quota-Sünder ermitteln, und im Fall eine Mail an den Administrator schreiben
+
+0 7  * * *    root /usr/bin/wer_hat_quota_voll > /dev/null          

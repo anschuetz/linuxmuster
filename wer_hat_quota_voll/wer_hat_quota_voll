@@ -1,0 +1,48 @@
+#!/bin/sh
+# Skript von jesko.anschuetz@linuxmuster.net März 2013
+# Dieses Skript ermittelt auf einer linuxmuster.net-Serverinstallation Nutzer,
+# die ihr Quota überschritten haben und gibt sie auf der Fehlerkonsole aus.
+# Ein Cron-Job, der stdout nach /dev/null umleitet, generiert so eine E-Mail
+# an den Administrator nur, wenn es Nutzer gib, die Quota überschritten haben.
+# Schüler ermitteln:
+
+for KLASSE in $(ls /home/students/); do
+  for SCHUELER in $(ls /home/students/$KLASSE/); do
+    quota_result="$(/usr/bin/quota -v $SCHUELER | grep \*)"
+    if [ ${#quota_result} != 0 ]; then
+	if [ -z $EXIST_SCHUELER ]; then
+	  EXIST_SCHUELER="JIPPIAIJEHSCHWEINEBACKE"
+	  echo "------------------------------------------------------" >&2
+	  echo "Ermittelte Schüler, die ihr Quota überschritten haben:" >&2
+	  echo "======================================================" >&2
+        fi
+ 	NAME=$(smbldap-usershow $SCHUELER | grep -e "displayName:" | awk -F": " '{print $2}')
+        echo "$NAME (Klasse $KLASSE)" >&2
+    fi
+  done
+done
+if [ -z $EXIST_SCHUELER ] ; then
+  echo "...keine Schüler"
+fi
+
+
+for LEHRER in $(ls /home/teachers) ; do
+       quota_result="$(/usr/bin/quota -v $LEHRER | grep \*)"
+       if [ ${#quota_result} != 0 ]; then
+	if [ -z $EXIST_LEHRER ]; then
+	  EXIST_LEHRER="JIPPIAIJEHSCHWEINEBACKE"
+	  echo "" >&2
+	  echo "" >&2
+	  echo "-----------------------------------------------------" >&2
+	  echo "Ermittelte Lehrer, die ihr Quota überschritten haben:" >&2
+	  echo "=====================================================" >&2
+        fi
+ 	NAME=$(smbldap-usershow $LEHRER | grep -e "displayName:" | awk -F": " '{print $2}')
+               echo "$LEHRER ($NAME)" >&2
+       fi ;
+done
+if [ -z $EXIST_LEHRER ] ; then
+  echo "...keine Lehrer"
+fi
+
+#############################################################

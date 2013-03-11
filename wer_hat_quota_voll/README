@@ -1,0 +1,13 @@
+wer_hat_quota_voll
+
+Skript ermittelt die Quotasünder und gibt sie auf stderr aus.
+So lässt sich das Skript als Cronjob aufrufen und generiert nur 
+eine Mail an den admin, wenn auch Quotasünder existieren.
+
+Installation mit 
+
+make install
+
+Deinstallation mit
+make uninstall
+
