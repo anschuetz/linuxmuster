@@ -1,0 +1,7 @@
+firefox-einstellungen-loeschen  <jesko.anschuetz@linuxmuster.net> März 2013
+
+Dieses Skript löscht in allen Schüler- und Lehrerhomeverzeichnissen die Firefox-Einstellungen.
+Einerseits im Ordner Home_auf_Server/Einstellungen und andererseits direkt im Server-Home.
+Damit werden sowohl Ubuntu 10.04 als auch Ubuntu 12.04 Clients ordnungsgemäß zurückgesetzt.
+
+
