@@ -14,13 +14,13 @@ Beispiel:
 
 echo "Hallo"    gibt auf der Konsole das Wort Hallo aus.
 
-ist_heute_schultag && echo "Heute ist Schule!"     gibt nur an Schultagen den Text aus.
-ist_heute_schultag || echo "Heute ist KEINE Schule"     gibt nur an schulfreien Tagen den Text aus.
-ist_heute_schultag && echo "heute ist Schule" || echo "heute ist keine Schule"     gibt je nach dem den richtigen Satz aus.
+ist-heute-schultag && echo "Heute ist Schule!"     gibt nur an Schultagen den Text aus.
+ist-heute-schultag || echo "Heute ist KEINE Schule"     gibt nur an schulfreien Tagen den Text aus.
+ist-heute-schultag && echo "heute ist Schule" || echo "heute ist keine Schule"     gibt je nach dem den richtigen Satz aus.
 
 statt der sinnlosen echo-Befehle kann man andere Dinge einsetzen.
 z.B lassen sich in einem Crontab mit
-0 7 * * *  root  ist_heute_schultag && linbo-remote -r r100 -c sync:1,start:1
+0 7 * * *  root  ist-heute-schultag && linbo-remote -r r100 -c sync:1,start:1
 alle Rechner um 7 Uhr morgens synchronisiert starten
 
 

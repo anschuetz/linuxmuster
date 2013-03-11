@@ -1,5 +1,5 @@
 #!/bin/bash
-# schultag.sh
+# ist-heute-schultag
 # Dieses Skript liest die Konfigurationsdateien "ferien.conf" und "ausnahmen.conf"
 # und beendet sich mit Fehlercode 0, falls der Aufruf an einem Schultag ist.
 # andernfalls beendet sich das Skript mit Fehlercode 99
