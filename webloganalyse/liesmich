@@ -1,0 +1,45 @@
+weblogauswertung.php
+
+Dieses Skript vereinfacht es erheblich, Schülern 
+(der Einfachheit halber mal nur die männliche Form,
+die Leserinnen mögen mir verzeihen) auf die Schliche
+zu kommen, die gegen die (hoffentlich vorhandene)
+Benutzerordnung an den Schulrechnern verstoßen.
+
+Die Logdatei, die die Internet-Zugriffe der Schüler protokolliert,
+wird auf unerwünschte Schlagworte hin gefiltert und angezeigt.
+Ein Filter, sorgt für die Übersichtlichkeit.
+Durch einen Klick auf die IP-Adresse kann man sich anzeigen lassen, 
+wer an der betreffenden Arbeitsstation angemeldet war.
+
+- Alle Einstellungen können auf der Webseite eingetragen werden.
+- Suchworte und Anzeigefilter werden im Webbrowser konfiguriert.
+- Der "Bösewicht" wird direkt angezeigt, falls er automatisch 
+  ermittelt werden kann.
+- Falls der "Bösewicht" ein Lehrer ist, wird die Ausgabe maskiert,
+  um die Privatsphäre zu schützen. (Voreingestellt, aber konfigurierbar)
+- Es werden auch die gezippten Userlogins.X.gz-Dateien durchsucht (konfigurierbar)
+- Ausgabeformat ist auf Text umstellbar (für die Cron-Job-Fetischisten ;-)
+
+Installation:
+0. git installieren, falls noch nicht geschehen: aptitude install git
+1. Skript mit Hilfe von git auf den Rechner kopieren
+   --> git clone https://github.com/anschuetz/linuxmuster
+2. In das Verzeichnis linuxmuster/webloganalyse wechseln
+3. make install
+4. ggf die Datei /etc/cron.d/weblog-von-ipcop-holen anpassen, 
+   um Aktualisierungsintervall zu wählen.
+
+Benutzung:
+Einfach das Skript mit dem Webbrowser aufrufen.
+(https://server/weblog)
+Mit dem Knopf "Konfigurieren" gelangt man zu Konfigurationsseite. 
+Dort kann man eigentlich alles so lassen wie es ist.
+Lediglich die Suchwortliste sollte man anpassen.
+Der Filter auf der Suchseite blendet unnötige Einträge aus. 
+Verschiedene Wörter trennt man mit | (Alt-GR + <>)
+***VIEL ERFOLG***
+
+über eine Rückmeldung würde ich mich freuen!
+--> jesko.anschuetz@linuxmuster.net
+

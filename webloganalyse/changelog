@@ -1,0 +1,48 @@
+Aktuelle Version: V0.9.2 Revision 147
+
+Änderungen in Rev147:
+- Feature: das Wort-Highlight wurde zugunsten eines anklickbaren Links für die 
+           besuchten Seiten entfernt.
+- Feature: Neue Konfigurationsoption: umgekehrt sortieren: Neue Zugriffe nach
+oben...
+Änderungen in Rev146:
+- Bugfix:  Methode geändert, wie Hauptdomain gefunden wird. Es werden aber
+	   immer noch alle Einträge angezeigt, die auf "/" enden.
+
+Änderungen in Rev145:
+- Feature: Es ist jetzt möglich durch angabe von
+	   nurhauptdomainzeigen =  "true"
+	   die Ausgabe zusätzlich zu Filtern. Es werden dann nur Einträge
+	   angezeigt, die auf "/" enden.
+Änderungen in Rev144:
+- Bugfix: Bei der Ermittlung von "Bösewichten" wurde in der IP nicht zwischen 
+          10.16.11.13 und 10.16.11.1 unterschieden. 
+	  Zeit des ersten/letzten Logeintrages war falsch formatiert
+- Layout: Die Überschrift der "Bösewichts"-Ermittlungsseite ist nun
+	  konfigurierbar (titel_boesewicht)
+	  Unter der Anzeige von Login und Logout kann noch ein frei wählbarer
+	  Text stehen (anmerkung_boesewicht)
+
+Änderungen in Rev 143:
+- Es wurden weitere Debug-Meldungen hinzugefügt
+
+Änderungen in Rev 142:
+- Es wurden weitere Debug-Meldungen hinzugefügt
+
+Änderungen in Rev141:
+- Auf der Seite, die den "Bösewicht" anzeigt wird jetzt zwischen Login und 
+  Logout der betreffende Internet-Zugriff angezeigt. Dann kann man einfach
+  diese Seite als "Beweis" ausdrucken...
+
+Änderungen in Rev140:
+- Fehler behoben: "userlogins" wurde versehentlich nicht durchsucht. Nur
+  die .X.gz Dateien.
+- Umlaute in den Kommentaren korrigiert
+
+Neue Funktionen:
+- Funktionen eingebaut, die den Zeitpunkt des ersten und letzten LOG-Eintrages
+  ermittelt, damit klar ist, ob die Anzeige aktuell ist.
+- Funktion eingebaut, die (falls gewünscht und erlaubt) prüft, ob ein Update
+  vorliegt und einen Hinweis ausgibt.
+
+Änderungen vor Rev140 nicht mitgeschrieben...
