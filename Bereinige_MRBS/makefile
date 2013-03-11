@@ -1,6 +1,6 @@
 install:
 	cp bereinige_MRBS /usr/bin/
-        cp mrbs_bereinigen /etc/cron.d/
+	cp mrbs_bereinigen /etc/cron.d/
 	/usr/bin/bereinige_MRBS
 
 uninstall: 
