@@ -2,5 +2,5 @@
 # in die Datei /etc/ethers schreiben, damit wakeonlan mit der IP-Adr. 
 # aufgerufen werden kann.
 
-0 0 * * *    root /usr/bin/ethers_schreiben_fuer_wakeonlan
+0 0 * * *    root /usr/bin/ethers-schreiben-fuer-wakeonlan
           
