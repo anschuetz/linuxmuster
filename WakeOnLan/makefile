@@ -1,8 +1,8 @@
 install:
-	cp ethers_schreiben_fuer_wakeonlan /usr/bin/
-	cp ethers_schreiben /etc/cron.d/ 
-	/usr/bin/ethers_schreiben_fuer_wakeonlan
+	cp ethers-schreiben-fuer-wakeonlan /usr/bin/
+	cp ethers-schreiben /etc/cron.d/ 
+	/usr/bin/ethers-schreiben-fuer-wakeonlan
 
 uninstall: 
-	rm -rf /usr/bin/ethers_schreiben_fuer_wakeonlan /etc/ethers /etc/cron.d/ethers_schreiben
+	rm -rf /usr/bin/ethers-schreiben-fuer-wakeonlan /etc/ethers /etc/cron.d/ethers-schreiben
 
