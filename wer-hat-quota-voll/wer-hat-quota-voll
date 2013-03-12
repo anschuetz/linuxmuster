@@ -16,7 +16,7 @@ for KLASSE in $(ls /home/students/); do
 	  echo "Ermittelte Schüler, die ihr Quota überschritten haben:" >&2
 	  echo "======================================================" >&2
         fi
- 	NAME=$(smbldap-usershow $SCHUELER | grep -e "displayName:" | awk -F": " '{print $2}')
+ 	NAME=$(/usr/sbin/smbldap-usershow $SCHUELER | grep -e "displayName:" | awk -F": " '{print $2}')
         echo "$NAME (Klasse $KLASSE)" >&2
     fi
   done
@@ -37,7 +37,7 @@ for LEHRER in $(ls /home/teachers) ; do
 	  echo "Ermittelte Lehrer, die ihr Quota überschritten haben:" >&2
 	  echo "=====================================================" >&2
         fi
- 	NAME=$(smbldap-usershow $LEHRER | grep -e "displayName:" | awk -F": " '{print $2}')
+ 	NAME=$(/usr/sbin/smbldap-usershow $LEHRER | grep -e "displayName:" | awk -F": " '{print $2}')
                echo "$LEHRER ($NAME)" >&2
        fi ;
 done
