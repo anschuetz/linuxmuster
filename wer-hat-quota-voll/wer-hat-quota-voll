@@ -8,7 +8,7 @@
 
 for KLASSE in $(ls /home/students/); do
   for SCHUELER in $(ls /home/students/$KLASSE/); do
-    quota_result="$(/usr/bin/quota -v $SCHUELER | grep \*)"
+    quota_result="$(/usr/bin/quota -vl $SCHUELER | grep \*)"
     if [ ${#quota_result} != 0 ]; then
 	if [ -z $EXIST_SCHUELER ]; then
 	  EXIST_SCHUELER="JIPPIAIJEHSCHWEINEBACKE"
