@@ -16,7 +16,6 @@ echo "access.log vom IPCOP kopieren"
 /usr/bin/scp -P 222 root@ipcop:/var/log/squid/access.log /var/www/weblog/ && echo "...erledigt"
 echo "Temporaere Dateien loeschen"
 cd $verzeichnis
-rm -f ./webloganalyse
 echo "Jetzt muss nur noch ein Cron-Job erstellt werden!"
 
 

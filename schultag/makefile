@@ -1,5 +1,5 @@
 install:
-	mkdir /etc/schultag
+	[[ -d /etc/schultag ]] || mkdir /etc/schultag
 	cp *.conf /etc/schultag
 	cp ist-heute-schultag /usr/bin/
 
