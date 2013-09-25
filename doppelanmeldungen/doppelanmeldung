@@ -1,0 +1,34 @@
+#!/bin/bash
+# Skript ermittelt die doppelt angemeldeten Nutzer und gibt sie incl. Anzahl
+# der Anmeldungen aus. 
+# jesko.anschuetz@linuxmuster.net Mai 2013
+
+
+# User, die nicht erfasst werden sollen:
+USER1=
+USER2=
+USER3=
+USER4=
+
+# Befehl, der die Ausgabe von smbstatus -b bringt:
+#SMBSTATUS='cat test'
+SMBSTATUS='smbstatus -b'
+
+# Ermitteln der doppelt angemeldeten User:
+DOPPELTE=$($SMBSTATUS | tail -n+5 | awk -F\  '{ print $2 " " $5 } ' | uniq | awk -F\  '{ print $1 }' | uniq -d | egrep -v -e "^$USER1$|^$USER2$|^$USER3$|^$USER4$")
+
+# Erklärung:
+# smbstatus -b gibt eine Liste der Anmeldungen aus.
+# tail schneidet die ersten 5 Zeilen ab (das sind Überschriften etc.)
+# awk schneidet die Usernamen und die IP-Adressen aus
+# uniq eliminiert alle identischen Zeilen (gleicher User an gleicher IP ist keine Doppelanmeldung...)
+# awk schneidet die übriggebliebenen Nuternamen aus.
+# uniq -d gibt nur die doppelten aus. Das müssten jetzt reale Doppelanmeldungne sein (?)
+# egrep filtert "erlaubte" User 1-4 raus.
+
+for i in $DOPPELTE
+do 
+
+   echo $(date '+%Y/%m/%d %k:%M - ') $i ist $($SMBSTATUS | grep -c $i) mal angemeldet 
+
+done

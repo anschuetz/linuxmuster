@@ -27,7 +27,7 @@ fi
 
 
 for LEHRER in $(ls /home/teachers) ; do
-       quota_result="$(/usr/bin/quota -v $LEHRER | grep \*)"
+       quota_result="$(/usr/bin/quota -vl $LEHRER | grep \*)"
        if [ ${#quota_result} != 0 ]; then
 	if [ -z $EXIST_LEHRER ]; then
 	  EXIST_LEHRER="JIPPIAIJEHSCHWEINEBACKE"
