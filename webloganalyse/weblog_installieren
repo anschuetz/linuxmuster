@@ -12,11 +12,10 @@ echo "passe Berechtigungen der Dateien an"
 chmod 666 wla_weblogauswertung.conf && echo "wla_weblogauswertung.conf ...erledigt."
 chmod 666 filterausdruck && echo "filterausdruck ...erledigt."
 chmod 666 suchbegriffe && echo "suchbegriffe ...erledigt."
-echo "access.log vom IPCOP kopieren"
-/usr/bin/scp -P 222 root@ipcop:/var/log/squid/access.log /var/www/weblog/ && echo "...erledigt"
+echo "access.log vom IPFIRE kopieren"
+/usr/bin/scp -P 222 root@ipfire:/var/log/squid/access.log /var/www/weblog/ && echo "...erledigt"
 echo "Temporaere Dateien loeschen"
 cd $verzeichnis
-rm -f ./webloganalyse
 echo "Jetzt muss nur noch ein Cron-Job erstellt werden!"
 
 
