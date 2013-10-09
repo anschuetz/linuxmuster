@@ -1,6 +1,18 @@
 #!/bin/bash
+#
+# Backup mit linuxmuster-migration-backup
+# Mit Hilfe von Hardlinks wird eine platzsparende
+# Backupsammlung erstellt, bei dem konfigurierbar
+# viele Backups aufgehoben werden. So kann man z.B.
+# jeden Tag der letzten Woche wieder herstellen,
+# jede Woche des letzten Monats und jeden Monat
+# des letzen Jahres.
+# jesko.anschuetz@linuxmuster.net - Okt. 2013
+# Version 0.1
 
-source ./backup.conf
+
+# Wo ist das Konfig-file?
+source ./backup.conf || exit 1
 
 DATE='+%Y-%m-%d_%V_%H-%M'
 
