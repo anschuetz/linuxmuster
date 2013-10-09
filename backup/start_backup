@@ -146,7 +146,22 @@ check_weekly_to_monthly(){
  fi
 }
 
+verlinke_lastbackup(){
+ #Ermitteln des Namens der jüngsten Hourly-Datei
+  HNAME=$(ls $TARGET/$HDIR|sort|tail -n1)
+ #Dieses Verzeichnis hart nach "lastbackup" im Zielverzeichnis verlinken. Falls es kein letztes gibt... einfach Ordner anlegen.
+  if [ "$HNAME" == "" ]
+  then
+    mkdir $TARGET/$LASTBACKUP
+  else
+    cp -al $TARGET/$HDIR/$HNAME $TARGET/$LASTBACKUP
+  fi
+}
 
+sichere_lastbackup(){
+  BACKUPNAME=$(date $DATE)
+  mv $TARGET/$LASTBACKUP $TARGET/$HDIR/$BACKUPNAME && print_log "Backup erfolgreich nach $HDIR/$BACKUPNAME kopiert" || print_log "FEHLER beim verschieben des backups"
+}
 log_init # Logdatei initialisieren (wenn nicht DISABLE_LOG=yes)
 
 # Prüfen, ob das Ziel existiert.
@@ -179,7 +194,9 @@ done
 
 
 # HIER MUSS DAS BACKUP LAUFEN
-
+verlinke_lastbackup
+sichere_lastbackup
+exit 0
 # Aufräumen: Verschieben der verschiedenen Backups nach den Vorgaben aus der Config
 check_hourly_to_daily   # überschüssige stündliche Backups zu den täglichen kopieren (hardlinks).
 check_daily_to_weekly   # überschüssige tägliche Backups zu den wöchentlichen schieben (hardlinks).
