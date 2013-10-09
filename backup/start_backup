@@ -1,0 +1,212 @@
+#!/bin/bash
+
+source ./backup.conf
+
+DATE='+%Y-%m-%d_%V_%H-%M'
+
+log_init(){
+  if [ "$DISABLE_LOG" != "yes" ]
+  then
+   [[ -e $LOG ]] || touch $LOG
+   echo -e "#######################################################\n\n\nBACKUP-Lauf vom $(date)" | tee -a $LOG
+  fi
+}
+
+print_log(){
+ [[ "$DISABLE_LOG" == "yes" ]] || echo $@ | tee -a $LOG || echo Fehler beim Loggen von "$@"
+}
+
+remove_obsolete_monthly(){
+ # Alles was zu viel ist wird gelöscht... das ist jeweils das älteste Backup, falls genug da sind.
+  if [ "$(ls $TARGET/$MDIR|wc -l)" -ge "$MONTHLY" ]
+  then
+    NAME=$(ls $TARGET/$MDIR|sort|head -n1)
+    rm -r $TARGET/$MDIR/$NAME && print_log "$MDIR/$NAME gelöscht" || print_log "$TARGET/$MDIR/$NAME löschen fehlgeschlagen"
+  else
+    print_log "In $MDIR gibt nichts zu löschen  ($MONTHLY Sicherungen)"
+  fi
+}
+
+remove_obsolete_weekly(){
+ # Alles was zu viel ist wird gelöscht... das ist jeweils das älteste Backup, falls genug da sind.
+  if [ "$(ls $TARGET/$WDIR|wc -l)" -ge "$WEEKLY" ]
+  then
+    NAME=$(ls $TARGET/$WDIR|sort|head -n1)
+    rm -r $TARGET/$WDIR/$NAME && print_log "$WDIR/$NAME gelöscht" || print_log "$TARGET/$WDIR/$NAME löschen fehlgeschlagen"
+  else
+    print_log "In $WDIR gibt nichts zu löschen  ($WEEKLY Sicherungen)"
+  fi
+}
+
+remove_obsolete_daily(){
+ # Alles was zu viel ist wird gelöscht... das ist jeweils das älteste Backup, falls genug da sind.
+  if [ "$(ls $TARGET/$DDIR|wc -l)" -ge "$DAILY" ]
+  then
+    NAME=$(ls $TARGET/$DDIR|sort|head -n1)
+    rm -r $TARGET/$DDIR/$NAME && print_log "$DDIR/$NAME gelöscht" || print_log "$TARGET/$DDIR/$NAME löschen fehlgeschlagen"
+  else
+    print_log "In $DDIR gibt nichts zu löschen  ($DAILY Sicherungen)"
+  fi
+}
+
+remove_obsolete_hourly(){
+ # Alles was zu viel ist wird gelöscht... das ist jeweils das älteste Backup, falls genug da sind.
+  if [ "$(ls $TARGET/$HDIR|wc -l)" -ge "$DAILY" ]
+  then
+    NAME=$(ls $TARGET/$HDIR|sort|head -n1)
+    rm -r $TARGET/$HDIR/$NAME && print_log "$HDIR/$NAME gelöscht" || print_log "$TARGET/$HDIR/$NAME löschen fehlgeschlagen"
+  else
+    print_log "In $HDIR gibt nichts zu löschen  ($HOURLY Sicherungen)"
+  fi
+}
+
+check_hourly_to_daily(){
+ if [ "$(ls $TARGET/$HDIR|wc -l)" -le "$HOURLY" ]
+ then
+  print_log "Es gibt nichts zu verschieben  ($HOURLY Sicherungen)"
+ fi
+ # Ermitteln des Namens und des Tages der ältesten hourly-Datei
+  HNAME=$(ls $TARGET/$HDIR|sort|head -n1)
+  HDATUM=$(echo $HNAME|cut -d_ -f1)
+  HTAG=$(echo $HDATUM|cut -d- -f3)
+
+ #Ermitteln des Namens und des Tages der jüngsten daily-Datei
+  DNAME=$(ls $TARGET/$DDIR|sort|tail -n1)
+  DDATUM=$(echo $DNAME|cut -d_ -f1)
+  DTAG=$(echo $DDATUM|cut -d- -f3)
+
+ if [ "$HTAG" != "$DTAG" ]
+ then
+   print_log "Heute gibt es noch keine daily Sicherung. Kopiere älteste Hourly-Datei nach $DDIR"
+   cp -al $TARGET/$HDIR/$HNAME $TARGET/$DDIR/ && print_log ...erfolg. || print_log GESCHEITERT.
+ else
+   print_log "Für heute gibt es schon ein tägliches Backup :) ... ich lasse die Finger von $DDIR"
+ fi
+}
+
+check_daily_to_weekly(){
+ if [ "$(ls $TARGET/$DDIR|wc -l)" -le "$DAILY" ]
+ then
+   print_log "Es gibt nichts zu verschieben  (weniger als $DAILY Tages-Sicherungen)" 
+   return
+ fi
+
+ # Ermitteln des Namens und der Kalenderwoche der ältesten daily-Datei
+   DNAME=$(ls $TARGET/$DDIR|sort|head -n1)
+   DWOCHE=$(echo $DNAME|cut -d_ -f2)
+
+ #Ermitteln des Namens der Kalenderwoche der jüngsten daily-Datei
+   WNAME=$(ls $TARGET/$WDIR|sort|tail -n1)
+   WWOCHE=$(echo $WNAME|cut -d_ -f2)
+
+ if [ "$DWOCHE" != "$WWOCHE" ]
+ then
+   print_log "Diese Woche gibt es noch keine Sicherung. Kopiere älteste Daily-Datei nach $WDIR"
+   cp -al $TARGET/$DDIR/$DNAME $TARGET/$WDIR/ && print_log ...erfolg. || print_log GESCHEITERT.
+ else
+   print_log "Für diese Woche gibt es schon ein Backup :) ... ich lasse die Finger von $WDIR"
+ fi
+}
+
+check_weekly_to_monthly(){
+ if [ "$(ls $TARGET/$WDIR|wc -l)" -le "$WEEKLY" ]
+ then
+   print_log "Es gibt nichts zu verschieben  (weniger als $WEEKLY Wochen-Sicherungen)" 
+   return
+ fi
+
+ #Ermitteln des Namens und des Monats der ältesten weekly-Datei
+   WNAME=$(ls $TARGET/$WDIR|sort|head -n1)
+   WDATUM=$(echo $WNAME|cut -d_ -f1)
+   WMONAT=$(echo $WDATUM|cut -d- -f2)
+
+ #Ermitteln des Namens und des Monats der jüngsten daily-Datei
+   MNAME=$(ls $TARGET/$MDIR|sort|tail -n1)
+   MDATUM=$(echo $MNAME|cut -d_ -f1)
+   MMONAT=$(echo $MDATUM|cut -d- -f2)
+
+ if [ "$WMONAT" != "$MMONAT" ]
+ then
+   print_log "Diesen Monat gibt es noch keine Sicherung. Kopiere älteste WEEKLY-Datei nach $MDIR"
+   cp -al $TARGET/$WDIR/$WNAME $TARGET/$MDIR/ && print_log ...erfolg. || print_log GESCHEITERT.
+ else
+   print_log "Für diesen Monat gibt es schon ein Backup :) ... ich lasse die Finger von $MDIR"
+ fi
+}
+
+
+log_init # Logdatei initialisieren (wenn nicht DISABLE_LOG=yes)
+
+# Prüfen, ob das Ziel existiert.
+if [ ! -d $TARGET ]
+then
+  print_log ZIEL-PFAD "'"$TARGET"'" existiert nicht... exiting.
+  exit 1
+fi
+
+# Prüfen, ob das Kontrollfile existiert. Damit wird sichergestellt, dass z.B. bei einem Netzwerkshare auch dort hin gesichert wird.
+# Wenn das Laufwerk nicht gemounted ist, fällt es spätestens hier auf.
+if [ ! -e $TARGET/$CONTROLFILE ]
+then
+  print_log 'Achtung!'
+  print_log "Mit dem Zielverzeichnis stimmt etwas nicht!"
+  print_log "--> Die Datei \"$TARGET/$CONTROLFILE\" existiert nicht."
+  exit 1
+fi
+
+
+# die wichtigen Verzeichnisse auf Existenz prüfen und gegebenenfalls anlegen.
+for DIR in $HDIR $DDIR $WDIR $MDIR
+do
+ if [ ! -d $TARGET/$DIR ]
+ then
+   print_log -n "'"$DIR"'" existiert nicht... erzeuge das Verzeichnis:
+   mkdir $TARGET/$DIR && print_log ...hat geklappt. || exit 2
+ fi
+done
+
+
+# HIER MUSS DAS BACKUP LAUFEN
+
+# Aufräumen: Verschieben der verschiedenen Backups nach den Vorgaben aus der Config
+check_hourly_to_daily   # überschüssige stündliche Backups zu den täglichen kopieren (hardlinks).
+check_daily_to_weekly   # überschüssige tägliche Backups zu den wöchentlichen schieben (hardlinks).
+check_weekly_to_monthly # überschüssige wöchentliche Backups zu den monatlichen schieben (hardlinks).
+
+remove_obsolete_monthly
+remove_obsolete_weekly
+remove_obsolete_daily
+remove_obsolete_hourly
+
+
+
+
+# Prüfen, ob es Änderungen gibt
+# nein -> nix machen
+# ja -> weiter
+
+# Das älteste HOURLY Backup vergleichen mit dem jüngsten DAILY.
+# Ist das jüngste DAILY vom selben Tag? --> HOURLY löschen
+# ansonsten HOURLY nach DAILY verschieben und 
+# prüfung mit ältestem DAILY und jüngstem WEEKLY wiederholen
+# prüfung mit ältestem WEEKLY und jüngstem MONTHLY wiederholen
+
+# --> Alle Backup-Sets eins nach hinten verschoben
+
+# ODER:
+# 
+# das jüngste HOURLY nach "aktuell" hardlinken,
+# backup auf aktuell durchführen
+# "aktuell" nach zeitstempel bewegen.
+# DANN erst die "Säuberung" ausführen. Und zwar so:
+# für jedes "Paar" (HOURLY-DAILY, DAILY-WEEKLY, WEEKLY-MONTHLY) jeweils den ältesten mit dem jüngsten vergleichen
+# und bei genügend Unterschied hinschieben
+# am Schluss in jeder Kategorie die überschüssigen ältesten Löschen
+
+
+
+# VORWEG:
+# prüfen, ob Verzeichnis tatsächlich das gewünschte NAS ist.
+# prüfen, ob Verzeichnisstruktur stimmt
+
+
