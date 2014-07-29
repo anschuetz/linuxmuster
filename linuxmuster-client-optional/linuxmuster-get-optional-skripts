@@ -6,8 +6,8 @@
 skripturl="http://cloop.linuxmuster.net"
 index=filenames.dat
 tmp=/tmp
-#target=opt/linuxmuster-optional-skripts # zum Testen relativ...
-target=/opt/linuxmuster-optional-skripts
+bin=/usr/bin # absoluter Pfad
+target=/opt/linuxmuster-optional-skripts # absoluter Pfad
 
 # voraussetzungen schaffen / prüfen:
 # Ausgabe nur bei kritischen Fehlern oder wenn irgendein Parameter
@@ -17,7 +17,7 @@ target=/opt/linuxmuster-optional-skripts
 
 mkdir -p $target
 
-testdirs="$tmp $target"
+testdirs="$tmp $target $bin"
 for testdir in $testdirs
 do
   if [ ! -w $testdir ]
@@ -33,20 +33,20 @@ then
 	echo "Beim Holen der Dateinamen ist etwas schiefgelaufen... ABBRUCH" >&2
 	exit 1
 fi
-warnings=0
-downloaded=0
-mvsuccess=0
-chmodsuccess=0
+# Zähler auf Null setzen
+warnings=0 ; downloaded=0 ; mvsuccess=0 ; chmodsuccess=0 ; lnsuccess=0
+
+# alle Skripte laden, verschieben, ausführbar machen und verlinken.
 for skript in $(cat "$tmp/$index")
 do
-  if ! wget -q -O "$tmp/$skript" "$skripturl/$skript"
+  if ! wget -q -O "$tmp/$skript" "$skripturl/$skript" # ...laden
   then
 	echo "Beim Holen von $skripturl/$skript ist etwas schief gegangen." >&2
 	let warnings=$warnings+1
 	[[ -e "$tmp/$skript" ]] && rm "$tmp/$skript"
   else
 	let downloaded=$downloaded+1
-	if ! mv "$tmp/$skript" "$target/$skript"
+	if ! mv "$tmp/$skript" "$target/$skript"  # ... verschieben
 	then
 		echo "Beim Verschieben von $tmp/$skript nach $target/$skript ist etwas schief gegangen." >&2
 		let warnings=$warnings+1
@@ -54,13 +54,22 @@ do
 		[[ "$1" != "" ]] && echo "$skript erfolgreich nach $target gelegt"
 		let mvsuccess=$mvsuccess+1
 		# ausführbar machen...
-		if ! chmod +x "$target/$skript"
+		if ! chmod +x "$target/$skript" # ... ausführbar machen
 		then
 			echo "Beim Setzen der Dateiberechtigungen von $target/$skript ist etwas schief gegangen." >&2
 			let warnings=$warnings+1
 		else
 			[[ "$1" != "" ]] &&  echo "Datei $target/$skript ausführbar gemacht"
 			let chmodsuccess=$chmodsuccess+1
+			# verlinken nach $bin
+			if ! ln -s "$target/$skript" "$bin/$skript"  # ... verlinken
+			then
+			echo "Beim Setzen der symbolischen Verknüpfung von $target/$skript auf $bin/$skript ist etwas schief gegangen." >&2
+			let warnings=$warnings+1
+			else
+				[[ "$1" != "" ]] &&  echo "Datei $target/$skript ausführbar gemacht"
+				let lnsuccess=$lnsuccess+1
+			fi
 		fi
 	fi
   fi
@@ -72,6 +81,7 @@ then
 	echo "Es sind insgesamt $downloaded Skripte heruntergeladen worden."
 	echo "Es sind insgesamt $mvsuccess Skripte am Zielort angekommen."
 	echo "Es sind insgesamt $chmodsuccess Skripte ausführbar gemacht worden."
+	echo "Es sind insgesamt $lnsuccess Skripte nach $bin verlinkt worden."
 fi
 
 
