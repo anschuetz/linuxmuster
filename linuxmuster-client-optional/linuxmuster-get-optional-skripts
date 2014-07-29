@@ -1,0 +1,80 @@
+#!/bin/bash
+# Downloaderskript für Zusatz-Skripte.
+# jesko.anschuetz@linuxmuster.net	Juli 2014
+# GPL v3
+
+skripturl="http://cloop.linuxmuster.net"
+index=filenames.dat
+tmp=/tmp
+target=/opt/linuxmuster-optional-skripts
+#target=opt/linuxmuster-optional-skripts # zum Testen relativ...
+
+# voraussetzungen schaffen / prüfen:
+# Ausgabe nur bei kritischen Fehlern oder wenn irgendein Parameter
+# übergeben wurde.
+
+[[ "$1" != "" ]] && echo $date $0 start
+
+mkdir -p $target
+
+testdirs="$tmp $target"
+for testdir in $testdirs
+do
+  if [ ! -w $testdir ]
+  then
+	echo "$testdir ist kein schreibbares Verzeichnis" >&2
+	exit 1
+  fi
+done
+
+# Datei nach $tmp holen, in der die Skriptnamen stehen, die heruntergeladen werden sollen.
+if ! wget -q -O "$tmp/$index" "$skripturl/$index"
+then
+	echo "Beim Holen der Dateinamen ist etwas schiefgelaufen... ABBRUCH" >&2
+	exit 1
+fi
+warnings=0
+downloaded=0
+mvsuccess=0
+chmodsuccess=0
+for skript in $(cat "$tmp/$index")
+do
+  if ! wget -q -O "$tmp/$skript" "$skripturl/$skript"
+  then
+	echo "Beim Holen von $skripturl/$skript ist etwas schief gegangen." >&2
+	let warnings=$warnings+1
+	[[ -e "$tmp/$skript" ]] && rm "$tmp/$skript"
+  else
+	let downloaded=$downloaded+1
+	if ! mv "$tmp/$skript" "$target/$skript"
+	then
+		echo "Beim Verschieben von $tmp/$skript nach $target/$skript ist etwas schief gegangen." >&2
+		let warnings=$warnings+1
+	else
+		[[ "$1" != "" ]] && echo "$skript erfolgreich nach $target gelegt"
+		let mvsuccess=$mvsuccess+1
+		# ausführbar machen...
+		if ! chmod +x "$target/$skript"
+		then
+			echo "Beim Setzen der Dateiberechtigungen von $target/$skript ist etwas schief gegangen." >&2
+			let warnings=$warnings+1
+		else
+			[[ "$1" != "" ]] &&  echo "Datei $target/$skript ausführbar gemacht"
+			let chmodsuccess=$chmodsuccess+1
+		fi
+	fi
+  fi
+done
+
+if [[ "$1" != "" ]]
+then
+	echo "Es sind insgesamt $warnings Warnungen generiert worden."
+	echo "Es sind insgesamt $downloaded Skripte heruntergeladen worden."
+	echo "Es sind insgesamt $mvsuccess Skripte am Zielort angekommen."
+	echo "Es sind insgesamt $chmodsuccess Skripte ausführbar gemacht worden."
+fi
+
+
+# aufräumen
+rm $tmp/$index
+
