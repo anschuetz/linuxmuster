@@ -6,8 +6,8 @@
 skripturl="http://cloop.linuxmuster.net"
 index=filenames.dat
 tmp=/tmp
-target=/opt/linuxmuster-optional-skripts
 #target=opt/linuxmuster-optional-skripts # zum Testen relativ...
+target=/opt/linuxmuster-optional-skripts
 
 # voraussetzungen schaffen / prüfen:
 # Ausgabe nur bei kritischen Fehlern oder wenn irgendein Parameter
