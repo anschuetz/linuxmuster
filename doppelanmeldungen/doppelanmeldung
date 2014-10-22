@@ -15,10 +15,10 @@ neustart=1
 PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/bin/X11:/opt/morz/bin"
 
 # bis zu vier Ausnahmen können hier konfiguriert werden. Diese User dürfen sich mehrfach anmelden
-AUSNAHME1="dsb"
-AUSNAHME2="az"
+AUSNAHME1="HIERKANNEINLOGINSTEHEN"
+AUSNAHME2="HIERKANNNOCHEINLOGINSTEHEN"
 AUSNAHME3="administrator"
-AUSNAHME4="mh"
+AUSNAHME4="HIERKANNEINVIERTERLOGINSTEHEN"
 
 # Meldung, die der Nutzer nach dem Neustart erhält: "LOGIN," wird automatisch davor gesetzt. \n erzeugt einen Zeilenumbruch
 NACHNEUSTARTMSG="du hast die letzte Warnung nicht ernst genommen und warst weiterhin an mehreren Rechnern gleichzeitig angemeldet. \n Alle Rechner, an denen du angemeldet warst, wurden neu gestartet.\n\n Denke daran: \n - Du darfst dein Passwort nicht weitergeben, \n - Du darfst nicht mit fremden Accounts arbeiten und \n - Du darfst auch nicht andere mit deinem Account arbeiten lassen..."
