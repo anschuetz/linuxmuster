@@ -1,0 +1,13 @@
+doppelanmeldung und message-user nach /usr/bin (oder einen anderen Pfad, der im $PATH steht) kopieren
+
+chmod +x mit beiden machen
+
+cronjob erstellen, der doppelanmeldung ausführt
+(bei mir jede Minute... alle 2 Minuten reicht vermutlich auch ;))
+
+fertig...
+
+Wenn die "softe" Variante ohne Reboot gewünscht ist, dann noch im Skript selbst 
+reboot=0 setzen...
+
+
