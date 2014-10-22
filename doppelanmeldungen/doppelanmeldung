@@ -1,34 +1,78 @@
 #!/bin/bash
-# Skript ermittelt die doppelt angemeldeten Nutzer und gibt sie incl. Anzahl
-# der Anmeldungen aus. 
-# jesko.anschuetz@linuxmuster.net Mai 2013
+# doppelanmeldungen | jesko.anschuetz@linuxmuster.net 22.10.2014
+# Skript ermittelt auf einem Linuxmuster.net 6.x Server, welche Nutzer
+# doppelt angemeldet sind und startet nach einer Warnung die betroffenen
+# Rechner neu.
+#############################
+
+# neustart=1 --> Rechner werden eine Minute nach der Warnung herunter-gefahren
+# falls dann immer noch mehrfache Anmeldungen vorliegen.
+# neustart=0 --> Es wird nur eine Meldung erzeugt und eine Mail an den Administrator
+neustart=1
 
 
-# User, die nicht erfasst werden sollen:
-USER1=
-USER2=
-USER3=
-USER4=
+# der Pfad ist wichtig, damit das Skript auch als CRON-Job funktioniert
+PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/bin/X11:/opt/morz/bin"
 
-# Befehl, der die Ausgabe von smbstatus -b bringt:
-#SMBSTATUS='cat test'
-SMBSTATUS='smbstatus -b'
+# bis zu vier Ausnahmen können hier konfiguriert werden. Diese User dürfen sich mehrfach anmelden
+AUSNAHME1="dsb"
+AUSNAHME2="az"
+AUSNAHME3="administrator"
+AUSNAHME4="mh"
 
-# Ermitteln der doppelt angemeldeten User:
-DOPPELTE=$($SMBSTATUS | tail -n+5 | awk -F\  '{ print $2 " " $5 } ' | uniq | awk -F\  '{ print $1 }' | uniq -d | egrep -v -e "^$USER1$|^$USER2$|^$USER3$|^$USER4$")
+# Meldung, die der Nutzer nach dem Neustart erhält: "LOGIN," wird automatisch davor gesetzt. \n erzeugt einen Zeilenumbruch
+NACHNEUSTARTMSG="du hast die letzte Warnung nicht ernst genommen und warst weiterhin an mehreren Rechnern gleichzeitig angemeldet. \n Alle Rechner, an denen du angemeldet warst, wurden neu gestartet.\n\n Denke daran: \n - Du darfst dein Passwort nicht weitergeben, \n - Du darfst nicht mit fremden Accounts arbeiten und \n - Du darfst auch nicht andere mit deinem Account arbeiten lassen..."
 
-# Erklärung:
-# smbstatus -b gibt eine Liste der Anmeldungen aus.
-# tail schneidet die ersten 5 Zeilen ab (das sind Überschriften etc.)
-# awk schneidet die Usernamen und die IP-Adressen aus
-# uniq eliminiert alle identischen Zeilen (gleicher User an gleicher IP ist keine Doppelanmeldung...)
-# awk schneidet die übriggebliebenen Nuternamen aus.
-# uniq -d gibt nur die doppelten aus. Das müssten jetzt reale Doppelanmeldungne sein (?)
-# egrep filtert "erlaubte" User 1-4 raus.
+# zu debugzwecken lässt sich hier der Befehl für den Anmeldestatus ändern.
+SMBSTATUS="smbstatus -b"
+#SMBSTATUS="cat testsmbstatus"
 
-for i in $DOPPELTE
-do 
+# debug=1 bewirkt, dass die Herunterfahr-Befehle nicht ausgeführt, sondern auf der Console ausgegeben werden.
+debug=0
 
-   echo $(date '+%Y/%m/%d %k:%M - ') $i ist $($SMBSTATUS | grep -c $i) mal angemeldet 
+# wohin darf das Skript schreiben?
+TMP="/tmp/doppelanmeldungen"
 
+# falls es nicht existiert wird das temp-Verzeichnis angelegt
+mkdir -p $TMP
+
+if [[ "$(ls $TMP)" != "" ]]
+then	#wenn TempDir nicht leer ist, bereinigen...
+	find ${TMP} -cmin 5 -delete  # nach 5 Minuten wird der Verwarnungsstatus zurückgesetzt...
+fi
+
+# herausfinden, wer doppelt angemeldet ist.
+DOPPELT=$($SMBSTATUS | tail -n+5 | sed 's/  */;/g' | cut -d";" -f2 | sort | grep -v "$AUSNAHME1" | grep -v "$AUSNAHME2" | grep -v "$AUSNAHME3" | grep -v "$AUSNAHME4" | uniq -d)
+for login in $DOPPELT
+do
+  # für alle doppelt angemeldeten werden jetzt die IP-Adressen der unterschiedlichen Rechner herausgefunden und gezählt
+  RECHNER=$($SMBSTATUS | grep $login | sed 's/  */;/g' | cut -d";" -f4| sort | sed -e "s/(//g" | sed -e "s/)//g" | sed -e "s/ /\n/g" | uniq -u | sed -e "s/\n/ /g")
+  ANZAHL=$(echo $RECHNER | wc -w)
+  [[ "$ANZAHL" == 0 ]] && continue # Falls die Anmeldungen an ein und demselben Rechner sind, dann ist das hier null wg. uniq -u... dann mit dem nächsten weitermachen...
+  # bei allen anderen werden noch Name und Klasse ermittelt.
+  KLASSE=$(/usr/sbin/sophomorix-user -u $login| grep PrimaryGroup | cut -d ":" -f2 | awk -F "  " ' { print $1 }' | sed 's/^ //g')
+  NAME=$(/usr/sbin/sophomorix-user -u $login| grep Gecos | cut -d ":" -f2 | awk -F "  " ' { print $1 }' | sed 's/^ //g')
+  if [[ "$neustart" == "1" ]]
+  then
+   if [ -e ${TMP}/$login ] # wenn beim letzten Lauf schon verwarnt wurde, rechner herunterfahren...
+   then
+	[[ "$debug" == "0" ]] &&  /opt/morz/bin/message-user $login "$login, $NACHNEUSTARTMSG"
+	sleep 1 # kurz warten
+	for IP in $RECHNER
+          do
+                [[ "$debug" == "0" ]] && ssh root@$IP reboot
+                [[ "$debug" == "1" ]] && echo "ssh root@$IP reboot"
+          done
+
+   else # sonst warnen...
+    /opt/morz/bin/message-user $login "$NAME, du bist an $ANZAHL Rechnern gleichzeitig angemeldet.\n\nDas ist verboten. \n\nMelde dich sofort überall ab, wo du nicht persönlich dran sitzt.\n\nRechner an denen du angemeldet bist: $(echo $RECHNER | sed 's/ /, /g') \n\n\n Tust du das nicht sofort, werden alle diese Rechner in 1 Minute heruntergefahren..."
+    echo -e "$NAME aus der Klasse $KLASSE ist an $ANZAHL Rechnern angemeldet:\n\n$(echo $RECHNER| sed 's/ /, /g')" | mail -s "Mehrfachanmeldung von $NAME, $KLASSE" administrator@morz.de
+    sleep 1
+    touch ${TMP}/$login
+    sleep 1
+    echo "Warnung ignoriert $date" >  ${TMP}/$login
+   fi
+  fi
 done
+
+exit 0

@@ -1,0 +1,10 @@
+#!/bin/bash
+# message-user | jesko.anschuetz@linuxmuster.net 22.10.2014
+# Skript schreibt eine Nachricht an einen User, die von linuxmuster-client-extras dann auf dem Linuxclient angezeigt wird.
+#############################
+userhome=$(/usr/sbin/smbldap-usershow "$1" | /bin/grep homeDirectory | /usr/bin/awk -F": " '{ print $2 }')
+message="$2"
+/bin/echo "$message" > $userhome/.majestix-motd
+/bin/echo $(date) > /tmp/message-user.log
+/bin/echo -e "$message\n $userhome" >> /tmp/message-user.log
+
