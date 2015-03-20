@@ -5,14 +5,18 @@
 # Rechner neu.
 #############################
 
+# durch die eigenen Gegebenheiten ersetzen:
+ADMINMAIL="administrator@server" 	  # der bekommt die Benachrichtigungsmail
+MESSAGEUSER="/opt/morz/bin/message-user"  # hier ist das message-user Skript
+ZUSATZPFAD="/opt/morz/bin"		  # hier liegen die anderen skripte, z.B. dieses hier.
+
+
 # neustart=1 --> Rechner werden eine Minute nach der Warnung herunter-gefahren
 # falls dann immer noch mehrfache Anmeldungen vorliegen.
 # neustart=0 --> Es wird nur eine Meldung erzeugt und eine Mail an den Administrator
 neustart=1
-
-
 # der Pfad ist wichtig, damit das Skript auch als CRON-Job funktioniert
-PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/bin/X11:/opt/morz/bin"
+PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/bin/X11:${ZUSATZPFAD}"
 
 # bis zu vier Ausnahmen können hier konfiguriert werden. Diese User dürfen sich mehrfach anmelden
 AUSNAHME1="HIERKANNEINLOGINSTEHEN"
@@ -56,7 +60,7 @@ do
   then
    if [ -e ${TMP}/$login ] # wenn beim letzten Lauf schon verwarnt wurde, rechner herunterfahren...
    then
-	[[ "$debug" == "0" ]] &&  /opt/morz/bin/message-user $login "$login, $NACHNEUSTARTMSG"
+	[[ "$debug" == "0" ]] &&  ${MESSAGEUSER} $login "$login, $NACHNEUSTARTMSG"
 	sleep 1 # kurz warten
 	for IP in $RECHNER
           do
@@ -65,8 +69,8 @@ do
           done
 
    else # sonst warnen...
-    /opt/morz/bin/message-user $login "$NAME, du bist an $ANZAHL Rechnern gleichzeitig angemeldet.\n\nDas ist verboten. \n\nMelde dich sofort überall ab, wo du nicht persönlich dran sitzt.\n\nRechner an denen du angemeldet bist: $(echo $RECHNER | sed 's/ /, /g') \n\n\n Tust du das nicht sofort, werden alle diese Rechner in 1 Minute heruntergefahren..."
-    echo -e "$NAME aus der Klasse $KLASSE ist an $ANZAHL Rechnern angemeldet:\n\n$(echo $RECHNER| sed 's/ /, /g')" | mail -s "Mehrfachanmeldung von $NAME, $KLASSE" administrator@morz.de
+    ${MESSAGEUSER} $login "$NAME, du bist an $ANZAHL Rechnern gleichzeitig angemeldet.\n\nDas ist verboten. \n\nMelde dich sofort überall ab, wo du nicht persönlich dran sitzt.\n\nRechner an denen du angemeldet bist: $(echo $RECHNER | sed 's/ /, /g') \n\n\n Tust du das nicht sofort, werden alle diese Rechner in 1 Minute heruntergefahren..."
+    echo -e "$NAME aus der Klasse $KLASSE ist an $ANZAHL Rechnern angemeldet:\n\n$(echo $RECHNER| sed 's/ /, /g')" | mail -s "Mehrfachanmeldung von $NAME, $KLASSE" ${ADMINMAIL}
     sleep 1
     touch ${TMP}/$login
     sleep 1
