@@ -23,6 +23,29 @@ z.B lassen sich in einem Crontab mit
 0 7 * * *  root  ist-heute-schultag && linbo-remote -r r100 -c sync:1,start:1
 alle Rechner um 7 Uhr morgens synchronisiert starten
 
+Update 11/2017:
+wenn nicht "heute", sondern "morgen" oder "in 5 Tagen" interessiert (z.B. bei der Ermittlung, welches der nächste Schultag
+ist --> Vertretungsplandisplay etc) dann kann man das neu hinzugefügte Skript "ist-schultag [in_x_tagen]" verwenden (DANKE TOBIAS!)
+
+ist-schultag 1 && echo "Morgen ist Schultag"
+ist-schultag 100 && echo "in 100 Tagen ist ein Schultag"
+
+Dann hat sich mein bislang kompliziertes Finden der nächsten Drei Vertretungsplantage reduziert auf:
+
+function get_next_relevant_days
+{   
+    naechster_schultag_in=0
+    for i in 1 2 3; do
+        while ! ist-heute-schultag $naechster_schultag_in ; do
+            echo "Kein Schultag in $naechster_schultag_in Tagen"
+            let "naechster_schultag_in+=1"
+        done
+        days="$days $(date --date="today +${naechster_schultag_in}days" +%Y_%m_%d)"
+        let "naechster_schultag_in+=1"
+    done
+   #$days enthält jetzt die nächsten drei Schultage, egal wann ich das aufrufe (Ferien, Do, Fr, Sa, So)
+}
+
 
 viel Spaß mit dem Skript :)
 viele Grüße, Jesko
