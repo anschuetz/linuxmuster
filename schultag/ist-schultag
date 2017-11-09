@@ -1,0 +1,92 @@
+#!/bin/bash
+# ist-heute-schultag
+# Dieses Skript liest die Konfigurationsdateien "ferien.conf" und "ausnahmen.conf"
+# und beendet sich mit Fehlercode 0, falls der Aufruf an einem Schultag ist.
+# andernfalls beendet sich das Skript mit Fehlercode 99
+# die Fehlercodes sind unten konfigurierbar
+#
+# Skript von Jesko Anschütz <jesko.anschuetz@linuxmuster.net>, Januar 2012
+# Das Skript kann frei verwendet, angepasst, so gelassen oder auch nicht benutzt werden.
+
+########### HIER WIRD KONFIGURIERT ###############
+
+# wo liegen die Config-Dateien?
+# Pfad mit abschließendem Schrägstrich
+config_pfad="/etc/schultag/"
+
+# wie heißen die Dateien? 
+# Dateiname ohne Pfad und ohne Schrägstrich 
+ferien_conf="ferien_bw.conf"
+feiertage_conf="feiertage_bw.conf"
+ausnahmen_conf="ausnahmen.conf"
+
+# Sicherstellen, dass die Ausgabe der Wochentage auf deutsch erfolgt
+LC_TIME=de_DE
+export LC_TIME
+
+# Welche Wochentage sind grundsätzlich Schulfrei?
+# Leerzeichen-getrennte Liste der Lokalen Kurznamen der Tage
+# (Deutsches System z.B. Mo Di Mi Do Fr Sa So)
+schulfreie_wochentage="Sa So"
+
+# In welchem Format stehen die Daten in den Config-Dateien? (Siehe  # man date)
+datumsformat="%Y%m%d"
+
+# Vielleicht ist irgendwann eine Unterscheidung von Wochenende und Ferien sinnvoll
+# z.B. für Home-Backups, die ja keinen Sinn machen in 6 Wochen Sommerferien...
+exitcode_ferien=99
+exitcode_wochenende=98
+exitcode_feiertag=97
+exitcode_schultag=0
+exitcode_error=-1
+
+########### HIER DRUNTER MUSS NICHTS MEHR VERÄNDERT WERDEN! ################
+in_x_tagen=${1:-0}
+date --date="today +${in_x_tagen}days" >/dev/null || exit $exitcode_error
+
+
+# schauen wir mal, ob die Config-Dateien existieren und brechen ggf. ab.
+[ ! -e $config_pfad$ferien_conf ] && echo "Config-Datei $config_pfad$ferien_conf fehlt oder ist nicht lesbar!"
+[ ! -e $config_pfad$ausnahmen_conf ] && echo "Config-Datei $config_pfad$ausnahmen_conf fehlt oder ist nicht lesbar!"
+
+# Ausnahmen durchgehen und ggf. Schultag melden
+for ausnahmedatum in `awk '{print $1}' $config_pfad$ausnahmen_conf`;
+do
+  if [ "$ausnahmedatum" == `date --date="today +${in_x_tagen}days" +$datumsformat` ] 
+  then 
+	exit $exitcode_schultag
+  fi
+done
+
+for schulfrei in $schulfreie_wochentage;
+do 
+  if [ "$schulfrei" == `date --date="today +${in_x_tagen}days" +%a` ] 
+  then
+	exit $exitcode_wochenende
+  fi
+done  
+
+for feiertag in `awk '{print $1}' $config_pfad$feiertage_conf`;
+do
+  if [ "$feiertag" == `date --date="today +${in_x_tagen}days" +$datumsformat` ] 
+  then 
+    exit $exitcode_feiertag
+  fi
+done
+
+
+for ferien in `awk '{print $1}' $config_pfad$ferien_conf`;
+do
+	if [ "$ferien" != "#" ] 
+	then 
+		IFS="-"
+		set -- $ferien
+		if [ $1 -le `date --date="today +${in_x_tagen}days" +$datumsformat` ] && [ $2 -ge `date --date="today +${in_x_tagen}days" +$datumsformat` ]
+		then 
+			exit $exitcode_ferien
+		fi
+	fi
+done
+exit 0
+
+
