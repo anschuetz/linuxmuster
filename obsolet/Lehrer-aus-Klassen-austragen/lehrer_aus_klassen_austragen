@@ -1,4 +1,8 @@
 #!/bin/bash
+sophomorix-teacher --remove-classes-from-teachers 
+exit 0
+
+# Rest der Datei mittlerweile obsolet
 for lehrer in $(ls /home/teachers) ; 
 do 
   for klasse in $(sophomorix-teacher -i --teacher $lehrer |
