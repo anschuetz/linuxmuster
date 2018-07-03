@@ -1,0 +1,15 @@
+#!/bin/bash
+# Mittlerweile wurde die Funktion in die sophomorix-skripte übernommen.
+# Aufruf ab sofort mit:
+sophomorix-teacher --remove-classes-from-teachers
+exit 0
+# bisher war es dieses Skript:
+for lehrer in $(ls /home/teachers)
+do 
+  for klasse in $(sophomorix-teacher -i --teacher $lehrer |
+      grep -v "AdminClasses"|
+      grep -v "Add a class")
+  do 
+      sophomorix-teacher --teacher $lehrer --remove $klasse
+  done
+done
