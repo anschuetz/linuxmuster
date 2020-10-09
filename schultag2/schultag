@@ -5,7 +5,8 @@
 # --> Skript nach /usr/bin kopieren und dann
 # --> Programm starten, wenn Schultag ist:
 # --> /usr/bin/schultag && /pfad/zum/programm
-# have fun!
+# have fun! 
+# Lizenz: CC0
 
 
 ###########################################################
@@ -13,6 +14,9 @@
 ###########################################################
 LAND="BW"                                      ############
 SAMSTAG_FREI=True                              ############
+abfrageIntervall = 604800                      ############   
+zwischenlagerPfad = "/tmp"                     ############
+zwischenlagerDateiName = "schultag_daten.json" ############
 ###########################################################
 ###########################################################
 
@@ -32,10 +36,6 @@ if len(sys.argv) == 2:
 else:
     tageImVoraus=0
 
-abfrageIntervall = 86400    # Anzahl Sekunden, bevor nach
-                            # neuen Daten geschaut wird
-zwischenlagerPfad = "/tmp"
-zwischenlagerDateiName = "schultag_daten.json"
 
 def fetchDataFromWeb():
     if not os.path.isfile(zwischenlagerPfad+"/"+zwischenlagerDateiName) or datetime.datetime.now().timestamp() - os.path.getmtime(zwischenlagerPfad+"/"+zwischenlagerDateiName) > abfrageIntervall:
