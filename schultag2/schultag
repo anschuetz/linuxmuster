@@ -1,0 +1,88 @@
+#!/usr/bin/env python3
+# schultag.py - Jesko Anschütz 2020
+# Dieses Skript gibt den exitcode 0 zurück, 
+# wenn ein Schultag ist, ansonsten 1 
+# --> Skript nach /usr/bin kopieren und dann
+# --> Programm starten, wenn Schultag ist:
+# --> /usr/bin/schultag && /pfad/zum/programm
+# have fun!
+
+
+###########################################################
+########### Konfiguriere hier dein Bundesland  ############
+###########################################################
+LAND="BW"                                      ############
+SAMSTAG_FREI=True                              ############
+###########################################################
+###########################################################
+
+from datetime import datetime
+import os, sys, requests, json
+
+
+abfrageIntervall = 86400    # Anzahl Sekunden, bevor nach
+                            # neuen Daten geschaut wird
+zwischenlagerPfad = "/tmp"
+zwischenlagerDateiName = "schultag_daten.json"
+
+def fetchDataFromWeb():
+    if not os.path.isfile(zwischenlagerPfad+"/"+zwischenlagerDateiName) or datetime.now().timestamp() - os.path.getmtime(zwischenlagerPfad+"/"+zwischenlagerDateiName) > abfrageIntervall:
+        # Daten holen von der API von mehr-schulferien.de
+        periods = requests.get("http://www.mehr-schulferien.de/api/v2.0/periods").text
+        locations = requests.get("http://www.mehr-schulferien.de/api/v2.0/locations").text
+        holiday_or_vacation_types = requests.get("https://www.mehr-schulferien.de/api/v2.0/holiday_or_vacation_types").text
+        # Sichern der JSON-Daten in einer Datei, um die API nicht unnötig zu belasten
+        complete_data='{"locations": '+locations+', "periods": '+periods+', "holiday_or_vacation_types": '+holiday_or_vacation_types+'}'
+        text_file = open(zwischenlagerPfad+"/"+zwischenlagerDateiName, "w")
+        n = text_file.write(complete_data)
+        text_file.close()
+
+def getData():
+        fetchDataFromWeb()    
+        text_file = open(zwischenlagerPfad+"/"+zwischenlagerDateiName, "r")
+        jsonDict=json.loads(text_file.read())
+        text_file.close()
+        return jsonDict
+
+def startdate(period_dict):
+    assert type(period_dict) == dict
+    try:
+        return datetime.strptime(period_dict["starts_on"], '%Y-%m-%d')      
+    except:
+        print("Im übergebenen dict fehlt ein Parameter!")
+
+def enddate(period_dict):
+    assert type(period_dict) == dict
+    try:
+        return datetime.strptime(period_dict["ends_on"], '%Y-%m-%d')      
+    except:
+        print("Im übergebenen dict fehlt ein Parameter!")
+
+def getLocationID(locationCode, location_dict):
+    for location in location_dict:
+        if location.get("code") == locationCode:
+            return location.get("id")
+
+def isHoliday(locationID, period_dict, location_dict):
+    heute=datetime.now()
+    if heute.weekday == 6 or (SAMSTAG_FREI and heute.weekday == 5):
+        return True
+    else:
+      for period in periods:
+        if (period["location_id"] == locationID) and (
+            startdate(period) <= heute <= enddate(period)):
+                return True
+
+# Daten einsammeln:
+daten=getData()
+
+# der Übersichtlichkeit halber erstmal etwas auspacken:
+locations = daten["locations"]["data"]
+periods = daten["periods"]["data"]
+holidays = daten["holiday_or_vacation_types"]["data"]
+
+# jetzt prüfen, ob heute ein schulfreier Tag ist
+if isHoliday(getLocationID(LAND, locations), periods, locations):
+    sys.exit(1)
+else:
+    sys.exit(0)
