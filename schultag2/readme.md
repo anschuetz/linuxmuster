@@ -3,22 +3,10 @@ Konfiguration
 Im Skript oben muss das Bundesland konfiguriert werden, für das die Abfrage stattfindet.
 Möglich sind folgende Codes:
 
-  BW  
-  BY  
-  BE  
-  BB  
-  HB  
-  HH  
-  HE  
-  MV  
-  NI  
-  NW  
-  RP  
-  SL  
-  SN  
-  ST  
-  SH  
-  TH  
+  BW, BY, BE, BB, HB, HH, HE, MV, NI, NW, RP, SL, SN, ST, SH, TH 
+
+Man kann auch die Häufigkeit festlegen, in der neue Daten von der API geholt werden sollen. Voreingestellt sind 604800 Sekunden (1 Woche) Das ist glaube ich häufig genug und spart Ressourcen.
+
 
 Benutzung
 =========
