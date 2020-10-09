@@ -78,7 +78,6 @@ def getLocationID(locationCode, location_dict):
 
 def isHoliday(locationID, period_dict, location_dict):
     heute=datetime.datetime.now() + datetime.timedelta(days=tageImVoraus)
-    print(heute.weekday())
     if heute.weekday() == 6 or (SAMSTAG_FREI and heute.weekday() == 5):
         return True
     else:
