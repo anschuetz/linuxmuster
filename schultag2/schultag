@@ -16,9 +16,21 @@ SAMSTAG_FREI=True                              ############
 ###########################################################
 ###########################################################
 
-from datetime import datetime
+import datetime
 import os, sys, requests, json
 
+# checken, ob ein Parameter angegeben ist (genau einer)
+# und ob das auch noch eine ganze Zahl ist.
+# --> dann prüfen wir unten nicht, ob heute ein Schultag ist,
+# sondern ob in n Tagen einer ist.
+
+if len(sys.argv) == 2:
+   try:
+       tageImVoraus=int(sys.argv[1])
+   except ValueError:
+       tageImVoraus=0
+else:
+    tageImVoraus=0
 
 abfrageIntervall = 86400    # Anzahl Sekunden, bevor nach
                             # neuen Daten geschaut wird
@@ -26,7 +38,7 @@ zwischenlagerPfad = "/tmp"
 zwischenlagerDateiName = "schultag_daten.json"
 
 def fetchDataFromWeb():
-    if not os.path.isfile(zwischenlagerPfad+"/"+zwischenlagerDateiName) or datetime.now().timestamp() - os.path.getmtime(zwischenlagerPfad+"/"+zwischenlagerDateiName) > abfrageIntervall:
+    if not os.path.isfile(zwischenlagerPfad+"/"+zwischenlagerDateiName) or datetime.datetime.now().timestamp() - os.path.getmtime(zwischenlagerPfad+"/"+zwischenlagerDateiName) > abfrageIntervall:
         # Daten holen von der API von mehr-schulferien.de
         periods = requests.get("http://www.mehr-schulferien.de/api/v2.0/periods").text
         locations = requests.get("http://www.mehr-schulferien.de/api/v2.0/locations").text
@@ -47,14 +59,14 @@ def getData():
 def startdate(period_dict):
     assert type(period_dict) == dict
     try:
-        return datetime.strptime(period_dict["starts_on"], '%Y-%m-%d')      
+        return datetime.datetime.strptime(period_dict["starts_on"], '%Y-%m-%d')      
     except:
         print("Im übergebenen dict fehlt ein Parameter!")
 
 def enddate(period_dict):
     assert type(period_dict) == dict
     try:
-        return datetime.strptime(period_dict["ends_on"], '%Y-%m-%d')      
+        return datetime.datetime.strptime(period_dict["ends_on"], '%Y-%m-%d')      
     except:
         print("Im übergebenen dict fehlt ein Parameter!")
 
@@ -64,8 +76,9 @@ def getLocationID(locationCode, location_dict):
             return location.get("id")
 
 def isHoliday(locationID, period_dict, location_dict):
-    heute=datetime.now()
-    if heute.weekday == 6 or (SAMSTAG_FREI and heute.weekday == 5):
+    heute=datetime.datetime.now() + datetime.timedelta(days=tageImVoraus)
+    print(heute.weekday())
+    if heute.weekday() == 6 or (SAMSTAG_FREI and heute.weekday() == 5):
         return True
     else:
       for period in periods:
