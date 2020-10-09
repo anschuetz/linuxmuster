@@ -1,4 +1,6 @@
-  DE  
+Im Skript oben muss das Bundesland konfiguriert werden, für das die Abfrage stattfindet.
+Möglich sind folgende Codes:
+
   BW  
   BY  
   BE  
