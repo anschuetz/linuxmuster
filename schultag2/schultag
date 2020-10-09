@@ -9,19 +9,20 @@
 # Lizenz: CC0
 
 
-###########################################################
-########### Konfiguriere hier dein Bundesland  ############
-###########################################################
-LAND="BW"                                      ############
-SAMSTAG_FREI=True                              ############
-abfrageIntervall = 604800                      ############   
-zwischenlagerPfad = "/tmp"                     ############
-zwischenlagerDateiName = "schultag_daten.json" ############
-###########################################################
-###########################################################
+############################################################
+###### Konfiguriere hier           #########################
+###### Möglich: BW, BY, BE, BB, HB, HH, HE, MV, ############
+######          NI, NW, RP, SL, SN, ST, SH, TH #############
+############################################################
+LAND="BW"                                      #############
+SAMSTAG_FREI=True                              #############
+abfrageIntervall = 604800                      #############   
+zwischenlagerPfad = "/tmp"                     #############
+zwischenlagerDateiName = "schultag_daten.json" #############
+############################################################
+############################################################
 
-import datetime
-import os, sys, requests, json
+import datetime, os, sys, requests, json
 
 # checken, ob ein Parameter angegeben ist (genau einer)
 # und ob das auch noch eine ganze Zahl ist.
