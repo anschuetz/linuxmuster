@@ -7,6 +7,14 @@ Möglich sind folgende Codes:
 
 Man kann auch die Häufigkeit festlegen, in der neue Daten von der API geholt werden sollen. Voreingestellt sind 604800 Sekunden (1 Woche) Das ist glaube ich häufig genug und spart Ressourcen.
 
+"Installation"
+====================
+Für Systeme, die noch kein Python3 haben (z.B. Ubuntu 12.04 mit linuxmuster.net Sicherheitspatches) gibt es das Skript schultag.python2
+Für aktuelle Systeme passt aber die Python3-Version, die schon unter dem Namen "schultag" im Repo liegt.
+Welche Version man auch immer möchte, man kopiert sie nach /usr/bin und macht sie mit 
+chmod +x /usr/bin/schultag
+ausführbar.
+
 
 Benutzung
 =========
