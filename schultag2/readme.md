@@ -1,4 +1,13 @@
-Konfiguration
+schultag hat ein neues Zuhause (und ist komplett in go neuimplementiert)
+
+NEU: https://codeberg.org/anschuetz/linuxmuster-schultag
+
+
+
+
+
+
+Obsolet
 =============
 Im Skript oben muss das Bundesland konfiguriert werden, für das die Abfrage stattfindet.
 Möglich sind folgende Codes:
